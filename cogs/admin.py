@@ -16,7 +16,7 @@ class Admin(Cog):
     @has_permissions(administrator=True)
     async def study(self, ctx, study_name: Option(str, "스터디 이름"), study_mentor: Option(discord.Member, "스터디 멘토"), command: Option(str, "명령", choices=["개설", "조회", "수정", "삭제"])):
         if command == "개설":
-            await open_study()(ctx, study_name, study_mentor)
+            await open_study(ctx, study_name, study_mentor)
         elif command == "조회":
             await query_study_info(ctx, study_name, study_mentor)
         elif command == "수정":
