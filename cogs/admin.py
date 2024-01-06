@@ -67,7 +67,17 @@ class Admin(Cog):
                 await ctx.respond(f"{user.name}의 역할을 제거할 수 없습니다.")
             else:
                 await ctx.respond(f"{user.name}의 {role.name} 역할을 제거했습니다.")
-                
+               
+    @slash_command(description="서버의 상태를 확인합니다.", guild_ids=[GUILD_ID])
+    @has_permissions(administrator=True)
+    async def server(self, ctx):
+        try:
+            response = requests.get("http://localhost:8000/users/")
+        except requests.exceptions.ConnectionError:
+            await ctx.respond("서버에 연결할 수 없습니다.")
+        else:
+            await ctx.respond(f"서버에 연결할 수 있습니다. ({response.status_code})")
+     
     @slash_command(description="DB를 재작성합니다.", guild_ids=[GUILD_ID])
     @has_permissions(administrator=True)
     async def resetdb(self, ctx):
