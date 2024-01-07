@@ -54,6 +54,26 @@ class Music(Cog):
                 voice.volume = 100
             except:
                 await ctx.respond("음악을 재생할 수 없습니다.")
+
+    @slash_command(description="음악을 일시정지합니다.", guild_ids=[GUILD_ID])
+    async def pause(self, ctx):
+        voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        
+        if voice.is_playing():
+            voice.pause()
+            await ctx.respond("음악을 일시정지합니다.")
+        else:
+            await ctx.respond("음악이 재생 중이 아닙니다.")
+            
+    @slash_command(description="음악을 다시 재생합니다.", guild_ids=[GUILD_ID])
+    async def resume(self, ctx):
+        voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        
+        if voice.is_paused():
+            voice.resume()
+            await ctx.respond("음악을 다시 재생합니다.")
+        else:
+            await ctx.respond("음악이 일시정지 중이 아닙니다.")
                 
     @slash_command(description="재생을 종료합니다.", guild_ids=[GUILD_ID])
     async def stop(self, ctx):
