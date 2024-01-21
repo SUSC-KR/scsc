@@ -31,22 +31,26 @@ class User(Cog):
         if before.roles != after.roles:
             if len(before.roles) < len(after.roles):
                 role = [role for role in after.roles if role not in before.roles][0]
-                if role.color != 0xBF00FF or not '-' in role.name:
-                    return
                 
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
+                
+                check_response = requests.get(f"http://localhost:8000/studies/{study.id}/")
+                if check_response.status_code == 404:
+                    return
                 
                 requests.post(f"http://localhost:8000/studies/{study.id}/", 
                                     data=json.dumps({"id": before.id}), 
                                     headers={"Content-Type": "application/json"})
             else:
                 role = [role for role in before.roles if role not in after.roles][0]
-                if role.color != 0xBF00FF or not '-' in role.name:
-                    return
                 
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
+                
+                check_response = requests.get(f"http://localhost:8000/studies/{study.id}/")
+                if check_response.status_code == 404:
+                    return
                 
                 requests.delete(f"http://localhost:8000/studies/{study.id}/{before.id}/")
                 
