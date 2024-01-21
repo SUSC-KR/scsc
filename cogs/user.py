@@ -31,6 +31,8 @@ class User(Cog):
         if before.roles != after.roles:
             if len(before.roles) < len(after.roles):
                 role = [role for role in after.roles if role not in before.roles][0]
+                if role.color != 0xBF00FF or not '-' in role.name:
+                    return
                 
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
@@ -40,6 +42,8 @@ class User(Cog):
                                     headers={"Content-Type": "application/json"})
             else:
                 role = [role for role in before.roles if role not in after.roles][0]
+                if role.color != 0xBF00FF or not '-' in role.name:
+                    return
                 
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
