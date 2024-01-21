@@ -58,6 +58,10 @@ async def open_study(ctx, study_name: Option(str, "스터디 이름"), study_men
     if study_role is None:
         await ctx.defer()
         
+        if "-" in study_name:
+            await ctx.respond("스터디 이름에 '-'를 포함할 수 없습니다.")
+            return
+        
         await study_mentor.add_roles(discord.utils.get(ctx.guild.roles, name="스터디 멘토"))
         
         category = await ctx.guild.create_category(name=study_name, position=len(ctx.guild.categories)-2)
