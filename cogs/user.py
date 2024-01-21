@@ -1,6 +1,8 @@
 import discord
 import asyncio
 from discord.ext.commands import Cog
+from discord.commands import slash_command, Option
+from discord.ui import Select, View
 
 import json
 import requests
@@ -46,6 +48,41 @@ class User(Cog):
                 
         elif before.nick != after.nick:
             requests.put(f"http://localhost:8000/users/{before.id}/", data={"nickname": after.nick})
+            
+    @slash_command(description="원하는 스터디에 참여합니다.", guild_ids=[GUILD_ID])
+    async def join(self, ctx):
+        studies = requests.get("http://localhost:8000/studies/").json()
+        
+        select = Select(placeholder="스터디를 선택하세요.", 
+                        options=[discord.SelectOption(label=study["name"], 
+                                                      description=ctx.guild.get_member(study["mentor"]).name,
+                                                      value=f"{study['name']}-{ctx.guild.get_member(study['mentor']).name}"
+                                                      )
+                                 for study in studies
+                                 ])
+        
+        async def callback(interaction):
+            if interaction.user == ctx.author:
+                role = discord.utils.get(ctx.guild.roles, name=interaction.data["values"][0])
+                
+                select.disabled = True
+                select.placeholder = interaction.data["values"][0]
+                
+                if role in interaction.user.roles:
+                    await interaction.message.edit(view=view, content="이미 스터디에 참여하고 있습니다.")
+                    return await interaction.response.defer(ephemeral=True)
+                    
+                await interaction.user.add_roles(role)
+                
+                await interaction.message.edit(view=view, content="스터디에 참여했습니다.")
+                await interaction.response.defer(ephemeral=True)
+            
+        select.callback = callback
+        
+        view = View(timeout=60)
+        view.add_item(select)
+        
+        await ctx.respond(view=view)
             
 def setup(bot):
     bot.add_cog(User(bot))
