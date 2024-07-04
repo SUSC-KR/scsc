@@ -8,6 +8,14 @@ import requests
 from config import *
 from cogs.study import *
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+        
+HOST = os.getenv('HOST')
+PORT = os.getenv('PORT')
+
 class Admin(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -72,7 +80,7 @@ class Admin(Cog):
     @has_permissions(administrator=True)
     async def server(self, ctx):
         try:
-            response = requests.get("http://localhost:8000/users/")
+            response = requests.get(f"{HOST}:{PORT}/users/")
         except requests.exceptions.ConnectionError:
             await ctx.respond("서버에 연결할 수 없습니다.")
         else:
@@ -86,7 +94,7 @@ class Admin(Cog):
         everyone = ctx.guild.members
         
         for member in everyone:
-            response = requests.post("http://localhost:8000/users/", data={"id": member.id, "name": member.name, "nickname": member.nick if member.nick is not None else "None"})
+            response = requests.post(f"{HOST}:{PORT}/users/", data={"id": member.id, "name": member.name, "nickname": member.nick if member.nick is not None else "None"})
             
         await ctx.respond("DB를 재작성했습니다.")
             

@@ -9,13 +9,21 @@ import requests
 
 from config import *
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+HOST = os.getenv('HOST')
+PORT = os.getenv('PORT')
+
 class User(Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @Cog.listener()
     async def on_member_join(self, member):
-        requests.post("http://localhost:8000/users/", 
+        requests.post(f"{HOST}:{PORT}/users/", 
                       data={
                           "id": member.id, 
                           "name": member.name, 
@@ -24,7 +32,7 @@ class User(Cog):
             
     @Cog.listener()
     async def on_member_remove(self, member):
-        requests.delete(f"http://localhost:8000/users/{member.id}/")
+        requests.delete(f"{HOST}:{PORT}/users/{member.id}/")
     
     @Cog.listener()
     async def on_member_update(self, before, after):    
@@ -35,11 +43,11 @@ class User(Cog):
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
                 
-                check_response = requests.get(f"http://localhost:8000/studies/{study.id}/")
+                check_response = requests.get(f"{HOST}:{PORT}/studies/{study.id}/")
                 if check_response.status_code == 404:
                     return
                 
-                requests.post(f"http://localhost:8000/studies/{study.id}/", 
+                requests.post(f"{HOST}:{PORT}/studies/{study.id}/", 
                                     data=json.dumps({"id": before.id}), 
                                     headers={"Content-Type": "application/json"})
             else:
@@ -48,18 +56,18 @@ class User(Cog):
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
                 
-                check_response = requests.get(f"http://localhost:8000/studies/{study.id}/")
+                check_response = requests.get(f"{HOST}:{PORT}/studies/{study.id}/")
                 if check_response.status_code == 404:
                     return
                 
-                requests.delete(f"http://localhost:8000/studies/{study.id}/{before.id}/")
+                requests.delete(f"{HOST}:{PORT}/studies/{study.id}/{before.id}/")
                 
         elif before.nick != after.nick:
-            requests.put(f"http://localhost:8000/users/{before.id}/", data={"nickname": after.nick})
+            requests.put(f"{HOST}:{PORT}/users/{before.id}/", data={"nickname": after.nick})
             
     @slash_command(description="원하는 스터디에 참여합니다.", guild_ids=[GUILD_ID])
     async def join(self, ctx):
-        studies = requests.get("http://localhost:8000/studies/").json()
+        studies = requests.get(f"{HOST}:{PORT}/studies/").json()
         
         select = Select(placeholder="스터디를 선택하세요.", 
                         options=[discord.SelectOption(label=study["name"], 

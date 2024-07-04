@@ -9,6 +9,14 @@ import requests
 
 from config import *
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+HOST = os.getenv('HOST')
+PORT = os.getenv('PORT')
+
 class UpdateModal(Modal):
     def __init__(self, study_name, study_mentor, category):
         super().__init__(title="스터디 정보 수정")
@@ -26,7 +34,7 @@ class UpdateModal(Modal):
         study_role = discord.utils.get(interaction.guild.roles, name=f"{self.study_name}-{self.study_mentor.name}")
         await study_role.edit(name=f"{self.children[0].value}-{self.study_mentor.name}")
         
-        requests.put(f"http://localhost:8000/studies/{self.category.id}/", 
+        requests.put(f"{HOST}:{PORT}/studies/{self.category.id}/", 
                                 data=json.dumps({
                                     "id": self.category.id,
                                     "name": self.children[0].value,
@@ -44,7 +52,7 @@ class UpdateModal(Modal):
 def check_study_verification(func):
     async def wrapper(ctx, study_name: Option(str, "스터디 이름"), study_mentor: Option(discord.Member, "스터디 멘토"), category = None):
         category = discord.utils.get(ctx.guild.categories, name=study_name)
-        mentor_id = requests.get(f"http://localhost:8000/studies/{category.id}/").json()["study"]["mentor"]
+        mentor_id = requests.get(f"{HOST}:{PORT}/studies/{category.id}/").json()["study"]["mentor"]
         
         if category is not None and mentor_id == study_mentor.id:
             return await func(ctx, study_name, study_mentor, category)
@@ -91,7 +99,7 @@ async def open_study(ctx, study_name: Option(str, "스터디 이름"), study_men
             channel = await ctx.guild.create_voice_channel(name=channel_name, category=category)
             await channel.edit(sync_permissions=True)
             
-        requests.post("http://localhost:8000/studies/", data={"id": category.id, "name": study_name, "mentor": study_mentor.id})
+        requests.post(f"{HOST}:{PORT}/studies/", data={"id": category.id, "name": study_name, "mentor": study_mentor.id})
     
         await ctx.respond(f"{study_name} 스터디를 개설했습니다.")
     
@@ -119,13 +127,13 @@ async def close_study(ctx, study_name: Option(str, "스터디 이름"), study_me
     study_role = discord.utils.get(ctx.guild.roles, name=f"{study_name}-{study_mentor.name}")
     await study_role.delete()
     
-    requests.delete(f"http://localhost:8000/studies/{category.id}/")
+    requests.delete(f"{HOST}:{PORT}/studies/{category.id}/")
     
     await ctx.respond(f"{study_name} 스터디를 폐쇄했습니다.")
 
 @check_study_verification
 async def query_study_info(ctx, study_name: Option(str, "스터디 이름"), study_mentor: Option(discord.Member, "스터디 멘토"), category):
-    study_student_count = len(requests.get(f"http://localhost:8000/studies/{category.id}/").json()["studyRegistration"])
+    study_student_count = len(requests.get(f"{HOST}:{PORT}/studies/{category.id}/").json()["studyRegistration"])
 
     study_embed = discord.Embed(title=f"{study_name} 스터디 정보", 
                                 description=f"**멘토**: {study_mentor.mention}\n \
