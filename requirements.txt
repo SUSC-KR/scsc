@@ -1,0 +1,27 @@
+aiohttp==3.8.6
+aiosignal==1.3.1
+async-timeout==4.0.3
+attrs==23.2.0
+Brotli==1.1.0
+certifi==2023.11.17
+cffi==1.16.0
+charset-normalizer==3.3.2
+ffmpeg-python==0.2.0
+frozenlist==1.4.1
+future==0.18.3
+idna==3.6
+imageio-ffmpeg==0.4.9
+multidict==6.0.4
+mutagen==1.47.0
+numpy==1.26.3
+py-cord @ git+https://github.com/pycord-development/pycord@fc7b1042c4a9a942b9996dfe96f56aac059e179c
+pycparser==2.21
+pycryptodomex==3.19.1
+PyNaCl==1.5.0
+python-dotenv==1.0.0
+requests==2.31.0
+urllib3==2.1.0
+websockets==12.0
+yarl==1.9.4
+yt-dlp==2023.12.30
+asgiref==3.7.2

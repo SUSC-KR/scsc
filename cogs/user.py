@@ -27,7 +27,7 @@ class User(Cog):
                       data={
                           "id": member.id, 
                           "name": member.name, 
-                          "nickname": member.nick if member.nick is not None else "None"
+                          "nickname": member.display_name
                           })
             
     @Cog.listener()
@@ -39,6 +39,9 @@ class User(Cog):
         if before.roles != after.roles:
             if len(before.roles) < len(after.roles):
                 role = [role for role in after.roles if role not in before.roles][0]
+                
+                if '-' not in role.name or before.name in role.name:
+                    return
                 
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
@@ -53,8 +56,14 @@ class User(Cog):
             else:
                 role = [role for role in before.roles if role not in after.roles][0]
                 
+                if '-' not in role.name or before.name in role.name:
+                    return
+                
                 study_name = role.name.split("-")[0]
                 study = discord.utils.get(after.guild.categories, name=study_name)
+                
+                if study is None:
+                    return
                 
                 check_response = requests.get(f"{HOST}:{PORT}/studies/{study.id}/")
                 if check_response.status_code == 404:
@@ -62,8 +71,13 @@ class User(Cog):
                 
                 requests.delete(f"{HOST}:{PORT}/studies/{study.id}/{before.id}/")
                 
-        elif before.nick != after.nick:
-            requests.put(f"{HOST}:{PORT}/users/{before.id}/", data={"nickname": after.nick})
+        elif before.display_name != after.display_name:
+            requests.put(f"{HOST}:{PORT}/users/{before.id}/", 
+                         data={
+                                "id": before.id,
+                                "nickname": after.display_name,
+                                "name": after.name
+                             })
             
     @slash_command(description="원하는 스터디에 참여합니다.", guild_ids=[GUILD_ID])
     async def join(self, ctx):

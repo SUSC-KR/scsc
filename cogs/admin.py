@@ -94,7 +94,18 @@ class Admin(Cog):
         everyone = ctx.guild.members
         
         for member in everyone:
-            response = requests.post(f"{HOST}:{PORT}/users/", data={"id": member.id, "name": member.name, "nickname": member.nick if member.nick is not None else "None"})
+            if requests.put(f"{HOST}:{PORT}/users/{member.id}/", 
+                            data={
+                                "id": member.id,
+                                "nickname": member.display_name,
+                                "name": member.name
+                            }).status_code == 404:
+                requests.post(f"{HOST}:{PORT}/users/", 
+                              data={
+                                  "id": member.id,
+                                  "nickname": member.display_name,
+                                  "name": member.name
+                              })
             
         await ctx.respond("DB를 재작성했습니다.")
             
