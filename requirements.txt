@@ -9,7 +9,7 @@ charset-normalizer==3.3.2
 ffmpeg-python==0.2.0
 frozenlist==1.4.1
 future==0.18.3
-idna==3.6
+idna==3.7
 imageio-ffmpeg==0.4.9
 multidict==6.0.4
 mutagen==1.47.0
