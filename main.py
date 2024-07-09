@@ -30,5 +30,12 @@ async def on_ready():
     
     await bot.change_presence(activity=discord.Game(name="성장"))
     
+@bot.event
+async def on_application_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.CheckFailure):
+        await ctx.respond("명령을 실행할 권한이 없습니다.")
+    else:
+        await ctx.respond(f"예상치 못한 오류가 발생했습니다. {error}")
+    
 access_token = os.getenv("SCSC_TOKEN")
 bot.run(access_token)

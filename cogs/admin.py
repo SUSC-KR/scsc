@@ -1,12 +1,13 @@
 import discord
 import asyncio
-from discord.ext.commands import Cog, has_permissions
+from discord.ext.commands import Cog
 from discord.commands import slash_command, Option
 
 import requests
 
 from config import *
 from cogs.study import *
+from cogs.owner import has_permissions_or_owner
 
 from dotenv import load_dotenv
 import os
@@ -21,7 +22,7 @@ class Admin(Cog):
         self.bot = bot
         
     @slash_command(description="스터디 관련 명령어입니다.", guild_ids=[GUILD_ID])
-    @has_permissions(administrator=True)
+    @has_permissions_or_owner()
     async def study(self, ctx, study_name: Option(str, "스터디 이름"), study_mentor: Option(discord.Member, "스터디 멘토"), command: Option(str, "명령", choices=["개설", "조회", "수정", "삭제"])):
         if command == "개설":
             await open_study(ctx, study_name, study_mentor)
@@ -33,7 +34,7 @@ class Admin(Cog):
             await close_study(ctx, study_name, study_mentor)
 
     @slash_command(description="사용자 정보를 확인합니다.", guild_ids=[GUILD_ID])
-    @has_permissions(administrator=True)
+    @has_permissions_or_owner()
     async def userinfo(self, ctx, user: Option(discord.Member, "사용자", required=False)):
         if user is None:
             user = ctx.author
@@ -51,7 +52,7 @@ class Admin(Cog):
         await ctx.respond(embed=user_embed)
         
     @slash_command(description="사용자의 역할을 수동 추가합니다.", guild_ids=[GUILD_ID])
-    @has_permissions(administrator=True)
+    @has_permissions_or_owner()
     async def addrole(self, ctx, user: Option(discord.Member, "사용자"), role: Option(discord.Role, "역할")):
         if role in user.roles:
             await ctx.respond(f"{user.name}은(는) 이미 {role.name} 역할을 가지고 있습니다.")
@@ -64,7 +65,7 @@ class Admin(Cog):
                 await ctx.respond(f"{user.name}에게 {role.name} 역할을 부여했습니다.")           
         
     @slash_command(description="사용자의 역할을 수동 제거합니다.", guild_ids=[GUILD_ID])
-    @has_permissions(administrator=True)
+    @has_permissions_or_owner()
     async def removerole(self, ctx, user: Option(discord.Member, "사용자"), role: Option(discord.Role, "역할")):
         if role not in user.roles:
             await ctx.respond(f"{user.name}은(는) {role.name} 역할을 가지고 있지 않습니다.")
@@ -77,7 +78,7 @@ class Admin(Cog):
                 await ctx.respond(f"{user.name}의 {role.name} 역할을 제거했습니다.")
                
     @slash_command(description="서버의 상태를 확인합니다.", guild_ids=[GUILD_ID])
-    @has_permissions(administrator=True)
+    @has_permissions_or_owner()
     async def server(self, ctx):
         try:
             response = requests.get(f"{HOST}:{PORT}/users/")
@@ -87,7 +88,7 @@ class Admin(Cog):
             await ctx.respond(f"서버에 연결할 수 있습니다. ({response.status_code})")
      
     @slash_command(description="DB를 재작성합니다.", guild_ids=[GUILD_ID])
-    @has_permissions(administrator=True)
+    @has_permissions_or_owner()
     async def resetdb(self, ctx):
         await ctx.defer()
         
